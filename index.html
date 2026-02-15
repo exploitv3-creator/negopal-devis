@@ -379,24 +379,6 @@
             background: #FAFBFC;
         }
 
-        .line-select {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 13px;
-            color: var(--text);
-            background: var(--white);
-            cursor: pointer;
-            outline: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 28px;
-        }
-
         .line-input {
             width: 100%;
             padding: 8px 10px;
@@ -410,8 +392,7 @@
             transition: border-color 0.15s;
         }
 
-        .line-input:focus,
-        .line-select:focus {
+        .line-input:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
         }
@@ -423,12 +404,6 @@
             padding-right: 12px;
             white-space: nowrap;
             min-width: 80px;
-        }
-
-        .line-tva {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-secondary);
         }
 
         .line-unite {
@@ -452,6 +427,96 @@
         .btn-remove-line:hover {
             background: var(--danger-light);
             color: var(--danger);
+        }
+
+        /* Combobox designation */
+        .combo-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .combo-wrap input {
+            width: 100%;
+            padding: 8px 32px 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 13px;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .combo-wrap input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+        }
+
+        .combo-wrap input::placeholder {
+            color: var(--text-placeholder);
+        }
+
+        .combo-toggle {
+            position: absolute;
+            right: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 8px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+
+        .combo-toggle:hover {
+            background: var(--bg);
+            color: var(--primary);
+        }
+
+        .combo-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 200;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .combo-dropdown.open {
+            display: block;
+        }
+
+        .combo-group-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            padding: 8px 12px 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+        }
+
+        .combo-option {
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .combo-option:hover {
+            background: var(--accent-light);
+            color: var(--accent);
         }
 
         /* Add line button */
@@ -831,11 +896,10 @@
                             <thead>
                                 <tr>
                                     <th style="width: 30%;">Désignation</th>
-                                    <th style="width: 12%;">Quantité</th>
-                                    <th style="width: 10%;">Unité</th>
-                                    <th style="width: 14%;">Prix unitaire</th>
-                                    <th style="width: 10%;">TVA</th>
-                                    <th style="width: 14%;">Montant HT</th>
+                                    <th style="width: 14%;">Quantité</th>
+                                    <th style="width: 12%;">Unité</th>
+                                    <th style="width: 16%;">Prix unitaire</th>
+                                    <th style="width: 16%;">Montant HT</th>
                                     <th style="width: 5%;"></th>
                                 </tr>
                             </thead>
@@ -851,17 +915,9 @@
                         <!-- Totals -->
                         <div class="totals-section">
                             <div class="totals-table">
-                                <div class="totals-row total-ht">
+                                <div class="totals-row total-ttc">
                                     <span class="totals-label">Total HT</span>
                                     <span class="totals-value" id="totalHT">0,00 €</span>
-                                </div>
-                                <div class="totals-row">
-                                    <span class="totals-label">TVA 20 %</span>
-                                    <span class="totals-value" id="totalTVA">0,00 €</span>
-                                </div>
-                                <div class="totals-row total-ttc">
-                                    <span class="totals-label">Total TTC</span>
-                                    <span class="totals-value" id="totalTTC">0,00 €</span>
                                 </div>
                             </div>
                         </div>
@@ -917,41 +973,6 @@
         const WEBHOOK_URL = 'https://melma2.app.n8n.cloud/webhook/705547fd-b6d8-4864-8900-af762b8ec6dd';
         const PASSWORD = 'negopal2026';
 
-        // 31 types de palettes NEGOPAL (synchro table TYPES PALETTES)
-        const TYPES_PALETTES = [
-            'Palettes Europe cassées',
-            'Europe neuve NIMP15',
-            'Europe occasion 1er choix',
-            'Europe occasion 2ème choix',
-            'Europe occasion 3ème choix',
-            'Palettes 80×120 légères NIMP15',
-            'Palettes 80×120 mi-lourdes NIMP15',
-            'Europe légère 1er choix',
-            'Europe légère 2ème choix',
-            'Europe légère cassée',
-            'Demi-Palettes 80×60 3s NIMP15',
-            'Demi-palette 80×60 1er choix',
-            'Demi-palette 80×60 2ème choix',
-            'Demi-palette 80×60 cassée',
-            'Quart de palette 60×40',
-            'Palettes Chimique (CP1)',
-            'Palettes Chimique (CP2)',
-            'Palettes Chimique (CP3)',
-            'Palettes Chimique (CP4)',
-            'Palettes Chimique (CP5)',
-            'Palettes Chimique (CP6)',
-            'Palettes Chimique (CP7)',
-            'Palettes Chimique (CP8)',
-            'Palette chimique CP9',
-            'Palette 80×120 légère',
-            'Palette 80×120 lourde',
-            'Palette 100×120 légère',
-            'Palette 100×120 lourde',
-            'Palette 114×114',
-            'Palette hors cote',
-            'Rondin'
-        ];
-
         // ============================================================
         // PASSWORD PROTECTION
         // ============================================================
@@ -976,36 +997,95 @@
         // ============================================================
         let lineCount = 0;
 
-        function createSelectOptions() {
-            let options = '<option value="">Sélectionner un type...</option>';
-            TYPES_PALETTES.forEach(type => {
-                options += `<option value="${type}">${type}</option>`;
+        const PALETTES_GROUPED = [
+            { group: '400×600', items: ['Quart de palettes 40*60 NIMP15'] },
+            { group: '800×600', items: ['Demi-Palettes 80*60 3s NIMP15'] },
+            { group: '800×1200', items: [
+                'Palettes 80*120 légères NIMP15',
+                'Palettes 80*120 mi-lourdes NIMP15',
+                'Palettes 80*120 Lourdes NIMP15',
+                'Palettes 80*120 Contre plaqués',
+                'Palettes 80*120 cassées',
+                'Palettes Europe 1er choix',
+                'Palettes Europe 2ème choix',
+                'Palettes Europe cassées'
+            ]},
+            { group: '1000×1200', items: [
+                'Palettes 100*120 Legeres 3 semelles',
+                'Palettes 100*120 Légeres 5 semelles',
+                'Palettes 100*120 Mi-lourdes 3 semelles',
+                'Palettes 100*120 Mi-lourdes 5 semelles',
+                'Palettes 100*120 Lourdes 3 semelles',
+                'Palettes 100*120 Lourdes 5 semelles',
+                'Palettes 100*120 Contre plaqués'
+            ]},
+            { group: 'Chimiques', items: [
+                'Palettes Chimique (CP1)', 'Palettes Chimique (CP2)', 'Palettes Chimique (CP3)',
+                'Palettes Chimique (CP4)', 'Palettes Chimique (CP5)', 'Palettes Chimique (CP6)',
+                'Palettes Chimique (CP7)', 'Palettes Chimique (CP8)', 'Palettes Chimique (CP9)'
+            ]}
+        ];
+
+        function buildDropdownHTML(lineId) {
+            let html = '';
+            PALETTES_GROUPED.forEach(g => {
+                html += `<div class="combo-group-label">${g.group}</div>`;
+                g.items.forEach(item => {
+                    html += `<div class="combo-option" onclick="selectPalette(${lineId}, this)">${item}</div>`;
+                });
             });
-            return options;
+            return html;
         }
+
+        function selectPalette(lineId, el) {
+            const input = document.querySelector(`#line-${lineId} input[name^="designation"]`);
+            input.value = el.textContent;
+            el.closest('.combo-dropdown').classList.remove('open');
+            input.focus();
+        }
+
+        function toggleDropdown(lineId) {
+            const dd = document.getElementById(`combo-dd-${lineId}`);
+            // Close all other dropdowns
+            document.querySelectorAll('.combo-dropdown.open').forEach(d => {
+                if (d.id !== `combo-dd-${lineId}`) d.classList.remove('open');
+            });
+            dd.classList.toggle('open');
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.combo-wrap')) {
+                document.querySelectorAll('.combo-dropdown.open').forEach(d => d.classList.remove('open'));
+            }
+        });
 
         function addLine() {
             lineCount++;
+            const id = lineCount;
             const tbody = document.getElementById('linesBody');
             const tr = document.createElement('tr');
-            tr.id = `line-${lineCount}`;
+            tr.id = `line-${id}`;
             tr.innerHTML = `
                 <td data-label="Désignation">
-                    <select class="line-select" name="type_palette_${lineCount}" required>
-                        ${createSelectOptions()}
-                    </select>
+                    <div class="combo-wrap">
+                        <input type="text" name="designation_${id}" required placeholder="Saisir ou choisir ▾">
+                        <button type="button" class="combo-toggle" onclick="toggleDropdown(${id})" title="Choisir un type">▾</button>
+                        <div class="combo-dropdown" id="combo-dd-${id}">
+                            ${buildDropdownHTML(id)}
+                        </div>
+                    </div>
                 </td>
                 <td data-label="Quantité">
-                    <input class="line-input" type="number" name="quantite_${lineCount}" required min="1" placeholder="0" oninput="updateTotals()">
+                    <input class="line-input" type="number" name="quantite_${id}" required min="1" placeholder="0" oninput="updateTotals()">
                 </td>
                 <td data-label="Unité" class="line-unite">Unités</td>
                 <td data-label="Prix unitaire">
-                    <input class="line-input" type="number" name="prix_${lineCount}" required min="0" step="0.01" placeholder="0,00" oninput="updateTotals()">
+                    <input class="line-input" type="number" name="prix_${id}" required min="0" step="0.01" placeholder="0,00" oninput="updateTotals()">
                 </td>
-                <td data-label="TVA" class="line-tva">20 %</td>
-                <td data-label="Montant HT" class="line-montant" id="montant-${lineCount}">0,00</td>
+                <td data-label="Montant HT" class="line-montant" id="montant-${id}">0,00</td>
                 <td>
-                    ${lineCount > 1 ? `<button type="button" class="btn-remove-line" onclick="removeLine(${lineCount})">✕</button>` : ''}
+                    ${id > 1 ? `<button type="button" class="btn-remove-line" onclick="removeLine(${id})">✕</button>` : ''}
                 </td>
             `;
             tbody.appendChild(tr);
@@ -1032,26 +1112,8 @@
                 }
             });
 
-            // Detect country for TVA
-            const pays = document.querySelector('select[name="pays"]').value;
-            const tvaRate = (pays === 'FR' || pays === '') ? 0.2 : 0;
-            const totalTVA = totalHT * tvaRate;
-            const totalTTC = totalHT + totalTVA;
-
-            // Update TVA display per line
-            document.querySelectorAll('.line-tva').forEach(el => {
-                el.textContent = tvaRate > 0 ? '20 %' : '0 %';
-            });
-            document.querySelector('#totalTVA').parentElement.querySelector('.totals-label').textContent = 
-                tvaRate > 0 ? 'TVA 20 %' : 'TVA 0 %';
-
             document.getElementById('totalHT').textContent = totalHT.toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' €';
-            document.getElementById('totalTVA').textContent = totalTVA.toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' €';
-            document.getElementById('totalTTC').textContent = totalTTC.toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' €';
         }
-
-        // Update TVA when country changes
-        document.querySelector('select[name="pays"]').addEventListener('change', updateTotals);
 
         // ============================================================
         // FORM SUBMISSION
@@ -1075,12 +1137,12 @@
             const lignes = [];
             const rows = document.querySelectorAll('#linesBody tr');
             rows.forEach(row => {
-                const type = row.querySelector('select[name^="type_palette"]')?.value;
+                const designation = row.querySelector('input[name^="designation"]')?.value;
                 const qte = row.querySelector('input[name^="quantite"]')?.value;
                 const prix = row.querySelector('input[name^="prix"]')?.value;
-                if (type && qte && prix) {
+                if (designation && qte && prix) {
                     lignes.push({
-                        type_palette: type,
+                        type_palette: designation,
                         quantite: parseInt(qte),
                         prix_unitaire_ht: parseFloat(prix),
                         total_ligne: parseInt(qte) * parseFloat(prix)
@@ -1140,8 +1202,6 @@
             lineCount = 0;
             addLine();
             document.getElementById('totalHT').textContent = '0,00 €';
-            document.getElementById('totalTVA').textContent = '0,00 €';
-            document.getElementById('totalTTC').textContent = '0,00 €';
             document.getElementById('devisForm').style.display = 'block';
             document.getElementById('successScreen').style.display = 'none';
             document.getElementById('dateEmission').value = new Date().toISOString().substring(0, 10);
